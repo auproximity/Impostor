@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Numerics;
+using Impostor.Api.Events.Managers;
 using Impostor.Api.Innersloth;
 using Impostor.Api.Net.Inner.Objects.ShipStatus;
 using Impostor.Server.Net.Inner.Objects.Systems;
@@ -10,7 +11,7 @@ namespace Impostor.Server.Net.Inner.Objects.ShipStatus
 {
     internal class InnerPolusShipStatus : InnerShipStatus, IInnerPolusShipStatus
     {
-        public InnerPolusShipStatus(Game game) : base(game)
+        public InnerPolusShipStatus(Game game, IEventManager eventManager) : base(game, eventManager)
         {
         }
 
