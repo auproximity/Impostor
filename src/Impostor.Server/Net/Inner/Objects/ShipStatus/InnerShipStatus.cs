@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Impostor.Api;
+using Impostor.Api.Events.Managers;
 using Impostor.Api.Innersloth;
 using Impostor.Api.Innersloth.Maps;
 using Impostor.Api.Net;
@@ -11,6 +12,7 @@ using Impostor.Api.Net.Inner;
 using Impostor.Api.Net.Inner.Objects.ShipStatus;
 using Impostor.Api.Net.Messages;
 using Impostor.Api.Net.Messages.Rpcs;
+using Impostor.Server.Events.Player;
 using Impostor.Server.Net.Inner.Objects.Systems;
 using Impostor.Server.Net.Inner.Objects.Systems.ShipStatus;
 using Impostor.Server.Net.State;
@@ -20,10 +22,12 @@ namespace Impostor.Server.Net.Inner.Objects.ShipStatus
     internal abstract class InnerShipStatus : InnerNetObject, IInnerShipStatus
     {
         private readonly Dictionary<SystemTypes, ISystemType> _systems = new Dictionary<SystemTypes, ISystemType>();
+        private readonly IEventManager _eventManager;
 
-        protected InnerShipStatus(Game game) : base(game)
+        protected InnerShipStatus(Game game, IEventManager eventManager) : base(game)
         {
             Components.Add(this);
+            _eventManager = eventManager;
         }
 
         public abstract IMapData Data { get; }
@@ -99,6 +103,11 @@ namespace Impostor.Server.Net.Inner.Objects.ShipStatus
                     if (systemType == SystemTypes.Sabotage && !await ValidateImpostor(call, sender, sender.Character!.PlayerInfo))
                     {
                         return false;
+                    }
+
+                    if (player != null)
+                    {
+                        await _eventManager.CallAsync(new PlayerRepairSystemEvent(Game, sender, player, systemType, amount));
                     }
 
                     break;
